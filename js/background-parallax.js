@@ -20,33 +20,28 @@ window.BackgroundParallax = (function (window, $) {
         self.parallaxElsData = null;
 
         self.init();
-    };
+    }
 
 
     BackgroundParallax.prototype = {
 
         defaults: {
             mobile: true,
-            selector: '.fr-background-parallax',
+            selector: '.fr-background-parallax-active',
             speed: 1,
             boost: 0
         },
 
 
         init: function () {
-            if ((self._isMobile() && !self.config.mobile) || !self._isSupported()) {
-
-                if (self._supportsTouch()) {
-                    $('body').addClass('isTouchDevice');
-                }
-
+            if (window.isMobile && !self.config.mobile) {
                 self.destroy();
                 return;
             }
 
             self.$parallaxEls = $(self.config.selector);
 
-            if (self.$parallaxEls.length == 0) {
+            if (!self.$parallaxEls.length) {
                 return;
             }
 
@@ -81,19 +76,22 @@ window.BackgroundParallax = (function (window, $) {
 
             self.$parallaxEls.each(function (i) {
                 var $el = $(this);
-                self.parallaxElsData[i] = {}
+                self.parallaxElsData[i] = {};
 
-                $el.css('background-position', "center center");
+                $el.css('background-position', 'center center');
 
-                var bgImgUrl = $el.css('background-image');
-                bgImgUrl = bgImgUrl.replace(/url\((['"])?(.*?)\1\)/gi, '$2').split(',')[0];
+                var bgImg = $el.css('background-image');
+                var bgImgUrl = bgImg.match(/url\((['"])?(.*?)\1\)/i);
+                if (bgImgUrl) {
+                    bgImgUrl = bgImgUrl[2];
+                }
 
+                self.parallaxElsData[i].hasOverlayColor = bgImg.indexOf('linear-gradient(') !== -1;
                 self.parallaxElsData[i].url = bgImgUrl;
                 self.parallaxElsData[i].img = self.parallaxElsData[i].img || new Image();
 
                 self._readBackgroundImageDimensions(i);
                 if (bgImgUrl !== self.parallaxElsData[i].img.src) {
-                    // self._readBackgroundImageDimensions(i);
                     self.parallaxElsData[i].img.src = bgImgUrl;
                 }
 
@@ -129,47 +127,39 @@ window.BackgroundParallax = (function (window, $) {
             // set parallax speed to same value as speed to get more expressive parralax effect
             var boost = speed;
 
+            self.parallaxElsData[i].img.onload = self.parallaxElsData[i].img.onload || function () {
+                if (!self.parallaxElsData[i].img.complete) {
+                    return;
+                }
+
+                if (self.screenHeight < $el.outerHeight()) {
+                    self.parallaxElsData[i].ok = false;
+                    console.warn("The container (" + $el.outerHeight() + "px) can't be bigger than the image (" + self.screenHeight + "px).");
+                }
+
+                self.parallaxElsData[i].onloadFired = true;
+
+                self._updateParallaxElDiff(i, $el, actualHeight, speed, boost);
+                self._updateBackgroundPositionOf(i);
+            };
 
             // HTMLImageElement.complete
-            // Returns a Boolean that is true if the browser has fetched the image, and it is in a supported image type that was decoded without errors.
+            // Returns a Boolean that is true if the browser has fetched the image,
+            // and it is in a supported image type that was decoded without errors.
             if (self.parallaxElsData[i].img.complete) {
-                self._updateParallaxElDiff(i, $el, actualHeight, speed, boost);
-
-                return;
-            }
-
-            self.parallaxElsData[i].img.onload = function () {
-                if (self.parallaxElsData[i].bgSize === '' || self.parallaxElsData[i].bgSize === 'auto') {
-                    if (this.height < $el.height()) {
-                        self.parallaxElsData[i].ok = false;
-                        console.warn("The image " + self.parallaxElsData[i].url + " (" + this.height + "px) is too short for that container (" + $el.height() + "px).");
-                    }
-                    else {
-                        actualHeight = this.height;
-                        if (this.height < self.screenHeight) {
-                            actualHeight = actualHeight + ((self.screenHeight - $el.height()) * speed);
-                        }
-                    }
-                }
-                else if (self.parallaxElsData[i].bgSize === 'cover') {
-                    if (self.screenHeight < $el.height()) {
-                        self.parallaxElsData[i].ok = false;
-                        console.warn("The container (" + $el.height() + "px) can't be bigger than the image (" + self.screenHeight + "px).");
-                    }
+                if (self.parallaxElsData[i].onloadFired) {
+                    self._updateParallaxElDiff(i, $el, actualHeight, speed, boost);
                 }
                 else {
-                    $el.css('background-size', 'cover');
-                    self._readBackgroundImageDimensions(i);
+                    self.parallaxElsData[i].img.onload();
                 }
-
-                self._updateParallaxElDiff(i, $el, actualHeight, speed, boost);
-            };
+            }
         },
 
 
         _updateParallaxElDiff: function (i, $el, actualHeight, speed, boost) {
-            var diff = -(actualHeight - $el.height()) * speed;
-            diff -= ($el.height() * boost);
+            var diff = -(actualHeight - $el.outerHeight()) * speed;
+            diff -= ($el.outerHeight() * boost);
 
             self.parallaxElsData[i].diff = diff;
         },
@@ -191,75 +181,40 @@ window.BackgroundParallax = (function (window, $) {
 
 
         _updateBackgroundPosition: function () {
-            var per, position;
-
             self.scrollY = window.pageYOffset;
 
             self.$parallaxEls.each(function (i) {
-                var $el = $(this);
-
-                // self._readBackgroundImageDimensions(i);
-
-                if (self.parallaxElsData[i].ok && $el.css('background-attachment') === "fixed" && self._isElementInViewport(i)) {
-                    per = (self.scrollY - $el.offset().top + self.screenHeight) / ($el.height() + self.screenHeight);
-                    position = self.parallaxElsData[i].diff * (per - 0.5);
-
-                    if (self.parallaxElsData[i].bgSize !== 'cover') {
-                        position = position + ((self.screenHeight - self.parallaxElsData[i].img.height) / 2);
-                    }
-                    position = (Math.round(position * 100) / 100) + 'px';
-                }
-                else {
-                    position = "center";
-                }
-
-                // update css if position has changed
-                if (self.parallaxElsData[i].position != position) {
-                    self.parallaxElsData[i].position = position;
-                    $el.css('background-position', "center " + position);
-                }
-
+                self._updateBackgroundPositionOf(i);
             });
         },
 
 
-        _isMobile: function () {
-            var agent = navigator.userAgent || navigator.vendor || window.opera;
+        _updateBackgroundPositionOf: function(i) {
+            var per, position;
 
-            return (/(ipad|playbook|silk|android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4))) ? true : false;
-        },
-
-
-        _isSupported: function () {
-            if (self._supportsTouch()) {
-                return false;
-            }
-
-            return true;
-        },
-
-
-        /***
-         * Modernizr touch test
-         *
-         */
-        _supportsTouch: function () {
-            // Test only indicates if the browser supports touch events, which does not necessarily reflect a touchscreen device.
-            var supportsTouch;
-
-            if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
-                supportsTouch = true;
+            var $el = $(self.$parallaxEls[i]);
+            if (self.parallaxElsData[i].ok && self._isElementInViewport(i)) {
+                per = (self.scrollY - $el.offset().top + self.screenHeight) / ($el.outerHeight() + self.screenHeight);
+                position = self.parallaxElsData[i].diff * (per - 0.5);
+                position = (Math.round(position * 100) / 100) + 'px';
             }
             else {
-                var mod = 'modernizr';
-                var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
-                self._injectElementWithStyles(['@media (', prefixes.join('touch-enabled),('), mod, ')', '{#modernizr{top:9px;position:absolute}}'].join(''), function (node) {
-                    supportsTouch = node.offsetTop === 9;
-                });
+                position = 'center';
             }
 
-            return supportsTouch;
+            // update css if position has changed
+            if (self.parallaxElsData[i].position !== position) {
+                self.parallaxElsData[i].position = position;
+                // Overlay color (linear-gradient) is element size therefore shouldn't be moved
+                if (self.parallaxElsData[i].hasOverlayColor) {
+                    $el.css('background-position', '0 0, center ' + position);
+                }
+                else {
+                    $el.css('background-position', 'center ' + position);
+                }
+            }
         },
+
 
         _injectElementWithStyles: function (rule, callback, nodes, testnames) {
 
