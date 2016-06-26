@@ -41,7 +41,7 @@ window.RevealAnimation = (function (window, Waypoint, $) {
      * @param {boolean} [config.mobile = true] - whether to run animations on mobile devices.
      * @param {boolean} [config.repeat = true] - whether to repeat the animations on subsequent reveals.
      * @param {string} [config.resultClass = 'fr-anim-result'] - Animation end state class name.
-     * @param {string} [config.classPrefix = 'fr-anim'] - Prefix to use for animation classes extracted from
+     * @param {string} [config.classPrefix = 'animated '] - Prefix to use for animation classes extracted from
      *                                                    data attribute. Resulting class name will be
      *                                                    config.classPrefix + class in data attribute.
      * @param {string} [config.animationMarker = '.fr-having-animation'] - jQuery selector for elements to animate.
@@ -71,7 +71,7 @@ window.RevealAnimation = (function (window, Waypoint, $) {
             mobile: true,
             repeat: true,
             resultClass: 'fr-anim-result',  // resets the state of animation class causing animation
-            classPrefix: 'fr-anim',  // prefix to use for animation classes extracted from data attribute
+            classPrefix: 'animated ',  // prefix to use for animation classes extracted from data attribute
             animationMarker: '.fr-having-animation',  // jQuery selector
             animationDataAttr: 'fr-animation'  // data attribute which contains animation classes: 'data-' + animationDataAttr
         },
@@ -119,6 +119,19 @@ window.RevealAnimation = (function (window, Waypoint, $) {
                 animation.waypoint = self._createWaypoint(el);
                 animation.seen = false;
             });
+
+
+            self.pageLoadTimeout = window.setTimeout(function () {
+                Waypoint.refreshAll();
+            }, 3000);
+
+            if (!window.addEventListener) { return; }
+            window.addEventListener('load', function () {
+                if (self.pageLoadTimeout) {
+                    window.clearTimeout(self.pageLoadTimeout);
+                }
+                Waypoint.refreshAll();
+            });
         },
 
 
@@ -136,7 +149,7 @@ window.RevealAnimation = (function (window, Waypoint, $) {
             // if animation is playing, stop it
             self._stopRuningAnimation(animation);
 
-            // removeing resulting state, if it's there
+            // removing resulting state, if it's there
             $el.removeClass(self.config.resultClass);
 
             // adding initial state, if it's not added already
@@ -148,12 +161,12 @@ window.RevealAnimation = (function (window, Waypoint, $) {
                 $el.addClass(self.config.resultClass);
 
                 // when transition ends remove all animation classes
-                $el.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', function (e) {
+                $el.on('animationend webkitAnimationEnd oAnimationEnd oanimationend MSAnimationEnd', function (e) {
                     if ($el.is(e.target)) {
                         // after css animation is done remove animation classes
                         $el.removeClass(self.config.resultClass + ' ' + animation.animationClass);
                         animation.animationFrame = null;
-                        $el.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd');
+                        $el.off('animationend webkitAnimationEnd oAnimationEnd oanimationend MSAnimationEnd');
                     }
                 });
             });
@@ -233,7 +246,7 @@ window.RevealAnimation = (function (window, Waypoint, $) {
                 element.removeAttribute('data-' + self.config.animationDataAttr);
 
                 animations.forEach(function (animation) {
-                    animationClass += (' ' + self.config.classPrefix + '-' + animation);
+                    animationClass += (' ' + self.config.classPrefix + animation);
                 });
             }
             $(element).addClass(animationClass);
@@ -318,7 +331,7 @@ window.RevealAnimation = (function (window, Waypoint, $) {
                 var $el = $(animation.element);
 
                 $el.removeClass(self.config.resultClass + ' ' + animation.animationClass);
-                $el.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd');
+                $el.off('animationend webkitAnimationEnd oAnimationEnd oanimationend MSAnimationEnd');
                 _cancelAnimationFrame(animation);
                 animation.animationFrame = null;
             }
@@ -327,6 +340,4 @@ window.RevealAnimation = (function (window, Waypoint, $) {
 
     return RevealAnimation;
 
-})(window, Waypoint, $);
-
-
+})(window, window.Waypoint, $);

@@ -19,9 +19,16 @@ $(function () {
         window.backgroundParallax = new BackgroundParallax();
     }
 
+    // Creates popup
+    if (window.FRPopup) {
+        window.frPopup = new FRPopup();
+    }
+
     // Creates slideshows
     var $slideshows = $('.swiper-container');
     if ($slideshows.length) {
+        window.swiperSlideshows = {};
+
         $slideshows.each(function () {
             var $slideshow = $(this),
                 $slides = $slideshow.children('.fr-widget.fr-container'),
@@ -51,6 +58,9 @@ $(function () {
 
                 /* generate the Swiper */
                 var swiper = $slideshow.swiper(swipperOptions);
+
+                /* Cache swiper objects to be able to update them when needed */
+                window.swiperSlideshows[this.id] = swiper;
 
                 /* add arrow button functionality to Swiper */
                 var $arrows = $slideshow.children('.fr-widget.fr-img, .fr-widget.fr-svg'),
@@ -94,7 +104,7 @@ $(function () {
     }
 
     // Anchor smooth scrolling
-    $('a').click(function () {
+    $('a:not(.fr-popup-anchor)').on('click', function () {
         var href = this.href;
 
         if (!href || href.indexOf('#') === -1) {
