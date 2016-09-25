@@ -1,3 +1,114 @@
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+
+// MIT license
+
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+
+
+(function () {
+    /**
+     * Detect CSS transforms
+     * https://gist.github.com/viljamis
+     *
+     * @return {String}
+     */
+    window.cssTransformProperty = (function () {
+        var t;
+        var el = document.createElement("fakeelement");
+        var transforms = {
+            "transform" : "transform",
+            "OTransform" : "oTransform",
+            "MozTransform" : "mozTransform",
+            "WebkitTransform" : "webkitTransform"
+        };
+        for (t in transforms) {
+            if (el.style[t] !== undefined) {
+                return transforms[t];
+            }
+        }
+    })();
+
+
+
+    /**
+     * getComputedStyle polyfill for old browsers
+     * https://gist.github.com/viljamis
+     */
+    if (!window.getComputedStyle) {
+      window.getComputedStyle = function(el) {
+        this.el = el;
+        this.getPropertyValue = function(prop) {
+          var re = /(\-([a-z]){1})/g;
+          if (prop === "float") {
+            prop = "styleFloat";
+          }
+          if (re.test(prop)) {
+            prop = prop.replace(re, function () {
+              return arguments[2].toUpperCase();
+            });
+          }
+          return el.currentStyle[prop] ? el.currentStyle[prop] : null;
+        };
+        return this;
+      };
+    }
+
+})();
+
+
+(function() {
+    // Debounce function
+    // http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
+    window.debounce = function (func, threshold, execAsap) {
+        var timeout;
+
+        return function debounced () {
+            var obj = this, args = arguments;
+            function delayed () {
+                if (!execAsap)
+                    func.apply(obj, args);
+                timeout = null;
+            };
+
+            if (timeout)
+                clearTimeout(timeout);
+            else if (execAsap)
+                func.apply(obj, args);
+
+            timeout = setTimeout(delayed, threshold || 100);
+        };
+    }
+}());
+
+
+
 $(function () {
     'use strict';
 
@@ -14,14 +125,15 @@ $(function () {
         window.revealAnimation = new RevealAnimation();
     }
 
+    // Creates widgets background videos
+    if (window.FrBgVideos) {
+        window.frBgVideos = new window.FrBgVideos();
+        window.frBgVideos.start();
+    }
+
     // Creates background parallax
     if (window.BackgroundParallax) {
         window.backgroundParallax = new BackgroundParallax();
-    }
-
-    // Creates popup
-    if (window.FRPopup) {
-        window.frPopup = new FRPopup();
     }
 
     // Creates slideshows
@@ -81,6 +193,11 @@ $(function () {
         });
     }
 
+    // Creates popup
+    if (window.FRPopup) {
+        window.frPopup = new FRPopup();
+    }
+
     // Used for navigation widget
     if (window.responsiveNav && $('.fr-navigation-active').length) {
         $('.fr-navigation').each(function () {
@@ -130,5 +247,4 @@ $(function () {
         });
         return false;
     });
-
 });
