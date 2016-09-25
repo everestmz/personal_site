@@ -2,6 +2,6 @@ box: php
 build:
   steps:
     - duleorlovic/ftp-deploy:
-        destination: ftp://ftp.everestmz.com/home2/everesw4/public_html
+        destination: ftp://ftp.everestmz.com/
         username: $USERNAME
         password: $PASSWORD
