@@ -1,3 +1,4 @@
+box: wercker/php
 build:
   steps:
     - duleorlovic/ftp-deploy:
