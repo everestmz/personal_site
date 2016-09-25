@@ -1,0 +1,6 @@
+deploy:
+  steps:
+    - duleorlovic/ftp-deploy:
+        destination: ftp://ftp.everestmz.com/home2/everesw4/public_html
+        username: $USERNAME
+        password: $PASSWORD
