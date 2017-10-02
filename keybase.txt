@@ -1,0 +1,76 @@
+==================================================================
+https://keybase.io/everestmz
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://everestmz.com
+  * I am everestmz (https://keybase.io/everestmz) on keybase.
+  * I have a public key with fingerprint 1EDB ED4F CC41 2F92 71EA  CD07 2026 1163 5F19 A929
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "012000590cc499945bd14ddeafc5fc48cd0a5874b658bbe58317d8590aa09b9efd3c0a",
+      "fingerprint": "1edbed4fcc412f9271eacd07202611635f19a929",
+      "host": "keybase.io",
+      "key_id": "202611635f19a929",
+      "kid": "010158228def99b93d36886d41666be790224fd22b6c0fd63879dc5b04397269aaa10a",
+      "uid": "6d18f92ae15ed6740633aad505ce6d19",
+      "username": "everestmz"
+    },
+    "service": {
+      "hostname": "everestmz.com",
+      "protocol": "http:"
+    },
+    "type": "web_service_binding",
+    "version": 1
+  },
+  "ctime": 1506938699,
+  "expire_in": 157680000,
+  "prev": "1f98ed61a9f9a42b287364a92d964dafcf891a8c105ac6f207813641e5e811fc",
+  "seqno": 12,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.74
+Comment: https://keybase.io/crypto
+
+yMNxAnicbVJ7UFRVHF5CGcIHMFOTvEa7BCgh3XP3PkEaoBSoYUYc0FBxvY9z4YL7
+YF9AxOQgjEKa2ra8hmmmJDQymylRm4RdNCOCDUEggdB0NZIEAdss89FZJv9p+uvM
+Ob/v+37f7/udb5b5qgJ8VkUHi5qQT9b49HY1WlS5g4Gvl2OCXirDEsqxIrhwwF0S
+NJk1RYqEJWA4IHAcpzhcFEmO40hKkAApSZCXRUoWSVaUcJ5iGVKgKVYQIMWqASOx
+CM/zOCdwUJbUIs5jcZis6PKh0WBUdGYkC6AkQImUkSogZI5gAOSRFEPgBA0AraZk
+wPEcwSFigd7kZSBzAm+C8YoevaGLZsHe/+Cf+MYBxRIEK0GZQ0bUkppmWVoiAU3T
+AmQ4nCBIWSIIgRZxWaLVLMNJIiXgpJpjCJrjeR4s+LYsyNESYJFNHgIKSjRD4rRa
+zfMShVMiRDVvX4sJGnW8FiI0tEIjilD7JlYRh6FnqyJCb7LeUf4LiRf1WsQ2GPVm
+vajfhUoFZrMhwcs0lxm80BIoaP4V0QiKTkJBIgLimxS9DksACCmaFa8qoHCaU7M0
+x8VhsNSgGKFG8SIohmbRFnFvG2j1xi9zLJoD8JzM8SQhECyjpkkUoMTRpIR2K7Mc
+4FkR4BQv0jKBMyxAAAApyAIgi5h3rGKdHmkTyCefjzRNSr6ON1uMEKs417V9kcon
+QOW3+CnvD1MFPB305N/FfhakanE/2pYe4Ftly3dPvzw+V5Qd07PhTJT5mdz+ye53
+a5tcxvzq7t1Bb2d/tO7P4AedKyIP2L9s+/So85WcTRmpq+0RSXu1ndY0D7mktTYm
+78AP6907LgemJAYOn3usSx2ZONzA9M5tm9mJ7xhvmWjKNA39Mnnd7lq53ikopgtX
+m5grV09v752Pdl5651qHduC7pMJLx5dFnggtjWn2nxq1VzsOup593l7ymqtyheun
+sbD+rSr/Vndm2z33qeR19RGW6ZAtAn049fTH4SB+6Qv6Ot8tNdOhza3OrItVNzL6
+X02MDbsdKvWlt81o23uPfD7zoz7lenPNpkpWLuwZ/u3G+1O75zxrG4fW7hlvsDVc
+zCCDbQ9C/Fb23Us4PrA5frTxxPnsLmfB9OAfF56bfVz/1/cee0X3ofqDdwnHG4lk
+VW25bX/PotJR08OjqfN1nmEbCL3fkRfpvPlIPLJk5Pbds322pi8GMsLCWzem3Epb
+3lZTbjVHT3Qpd+rbs35OBDfploHBrSVnQh133voweV9y81d9xXuPRVX/uvys+T3D
+eNmLRWWO1Uuj6o6NDAXZ0tM8Vtds5cM4Yng+wnO5YixJfinHWDU2uS98VYV/8ea8
+mTrsWtKUJffQt2v+3tAxkXByY29TcO7vwR2L+xMz3bdiA/wcbNXXOcV7Zs+PlWc1
+xhRe+UC38/7JU6WO9s5/AIzMz6E=
+=BUsv
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/everestmz
+
+==================================================================
+
